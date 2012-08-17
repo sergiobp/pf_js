@@ -1,0 +1,9 @@
+#lightbox { background-color: #fff; height: 100%; left: 0; opacity: 0.80; position: fixed; top: 0;width: 100%; z-index: 2000; }
+#lightbox-container { top:0; left: 0; position: fixed; z-index: 2001; }
+#lightbox-container .lbcontent { display: none; margin: 0 60px; }
+#lightbox-container .lbcontent p { color: #333; text-align: left; padding: 10px; }
+.lightbox-left-arrow { background: url("../images/lightbox_seta_esq.png") no-repeat; cursor: pointer; position: absolute; top: 0; left: 10px; width: 46px; height: 46px; }
+.lightbox-right-arrow { background: url("../images/lightbox_seta_dir.png") no-repeat; cursor: pointer; position: absolute; top: 0; right: 10px; width: 46px; height: 46px; }
+.seta-left-disable { cursor: auto !important;  background: url("../images/lightbox_seta_esq_disabled.png") no-repeat !important; }
+.seta-right-disable { cursor: auto !important;  background: url("../images/lightbox_seta_dir_disabled.png") no-repeat !important; }
+.close-button{ background-image: url("../images/close-lightbox.png"); width: 25px; height:25px; position: fixed; top :10px; right: 10px; cursor: pointer; }
