@@ -1,0 +1,9 @@
+.pf-slider { width: 100%; position: relative;}
+.pf-slider .pf-mask { overflow:hidden; margin: auto; position: relative;}
+.pf-slider .pf-mask ul{ position: absolute; }
+.pf-slider .pf-mask ul li{ float: left; overflow: hidden; }
+.pf-slider .pf-mask ul li:last-child { margin-right:0px; }
+.arrow{ width: 30px; height: 30px; position: absolute; top:285px; cursor: pointer}
+.left { background-color: blue; left: -30px;}
+.right { background-color: blue; right: -30px;}
+.arrow.off{ opacity: .5; }
