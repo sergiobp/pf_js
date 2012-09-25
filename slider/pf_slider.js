@@ -9,6 +9,9 @@
  * > slider itens resize when slider resizes
  * > navigation indicator
  # > easing on the animation
+ * > use css animation to fade the disabled arrows
+ * > touch swipe
+ * > layout das setas
  */
  
  
@@ -63,6 +66,7 @@
 				sl.arrow_right.hide();
 				return
 			}
+
 
 			updateNavigation.call(this);
 
