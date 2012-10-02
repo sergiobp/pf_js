@@ -1,20 +1,24 @@
 /*
- *  Project: 
+ *  Project: Parafernalia Interativa Lightbox
  *  Description: 
- *  Author: 
+ *  Author: Luiz Senna
  *  License: 
+ *
+ *
+ *
  */
-(function ( $, window, undefined ) {
+(function ( $, window ) {
 
     // Create the defaults once
     var defaults = 
     	{
             source: null,
             resize: null,
+            lclass: "lightbox-img",
+            img_attr: "data-content",
 			left_arrow : "lightbox-left-arrow",
 			right_arrow : "lightbox-right-arrow",
-			left_disabled_arrow : "seta-left-disable",
-			right_disabled_arrow : "seta-right-disable",
+			disabled_arrow : "disabled-arrow",
 			close_button : "close-button",
 			callback_content : false,
         };
@@ -32,12 +36,25 @@
 
 			lb.source 			    = settings.source;
 			lb.resize				= settings.resize;
+			lb.lclass  				= settings.lclass;
+			lb.img_attr				= settings.img_attr;
 			lb.left_arrow 		    = settings.left_arrow;
 			lb.right_arrow 		    = settings.right_arrow;
-			lb.left_disabled_arrow  = settings.left_disabled_arrow;
-			lb.right_disabled_arrow = settings.right_disabled_arrow;
+			lb.disabled_arrow  		= settings.disabled_arrow;
 			lb.close_bt 			= settings.close_button;
-			lb.callback_content 	= settings.callback_content;		
+			lb.callback_content 	= settings.callback_content;
+
+
+			if( !lb.source ){
+
+				lb.elements=jQuery( '.' + lb.lclass );
+
+				if( lb.elements.length==0 ){ 
+					throw "no elements has " + lclass + " class and there's no source method"
+				}
+
+			}
+
 		},
 
 		open : function(options)
@@ -76,7 +93,9 @@
 			resize.call(this)
 
 			lb.overlay.fadeIn(500, function(){
-				lb.source(lb.current);	
+
+				resolveContent( scope, lb );
+
 			});
 
 			//Configuring lightbox navigation
@@ -155,32 +174,23 @@
 		}
 
 		//check if first argument is a string. if so, it calls the method named in arg0
-		if (typeof arguments[0] === 'string')
-		{
+		if (typeof arguments[0] === 'string'){
 			//check if it's a valid method
-			if (methods[arguments[0]])
-			{
-	  		//check if two arguments are passed. if so, evaluate the second argument
-	  		if(arguments.length >= 2)
-	  		{
-	  			//check if second argument is an object. if so, call the method with custom options
-	  			if( typeof arguments[1] === 'object')
-	  			{
-	  				return methods[arg0].apply(this, [arg1]);
-	  			}
-	  			//if second argument is NOT an object, write error in console's log.
-	  			else
-	  			{
-	  				$.error("Error in second argument. It must be a valid object.");    				
-	  			}
-	  		}
-	  		else
-	  		{
-	  			return methods[arg0].call(this);
-	  		}
-			}
-			else
-			{
+			if (methods[arguments[0]]){
+	  			//check if two arguments are passed. if so, evaluate the second argument
+		  		if(arguments.length >= 2){
+		  			//check if second argument is an object. if so, call the method with custom options
+		  			if( typeof arguments[1] === 'object') {
+		  				return methods[arg0].apply(this, [arg1]);
+		  			} else { 
+						//if second argument is NOT an object, write error in console's log.
+		  				$.error("Error in second argument. It must be a valid object.");  
+		  				}
+		  			
+		  		} else {
+		  			return methods[arg0].call(this);
+		  			}
+			} else {
 				$.error("Error in first argument. Invalid arg0.");
 			}
 		}
@@ -200,6 +210,28 @@
 		}
 	}
 
+	var resolveContent = function( scope, lb ){
+
+		var element, content, cwidth, cheight;
+
+		if( lb.source ){
+
+			lb.source(lb.current);
+
+		} else { 
+
+			element = $( lb.elements.get( lb.current ) );
+			cwidth = element.attr('data-width');
+			cwidth = (cwidth) ? 'width = "' + cwidth + 'px"':'';
+			cheight = element.attr('data-height');
+			cheight = (cheight) ? 'height = "' + cheight + 'px"':'';
+			content = '<img src="' + element.attr('data-content') +'" ' + cwidth + ' ' + cheight + '/>';
+			methods['putContent'].apply( scope, [{c:content}] );
+			
+		}
+
+	}
+
     var navLeft = function() 
     {
     	var lb = this.vars;
@@ -209,7 +241,7 @@
 			lb.current--;
 			lb.content.fadeOut('slow').empty().detach();
 			navigation.call(this);
-			lb.source(lb.current);
+			resolveContent( this, lb );
 		}
     }
 
@@ -222,7 +254,7 @@
 			lb.current++;
 			lb.content.fadeOut('slow').empty().detach();
 			navigation.call(this);
-			lb.source(lb.current);
+			resolveContent( this, lb );
 		}
     }
 
@@ -230,20 +262,51 @@
 	{
 		var lb = this.vars;
 		
-		lb.light_left_arrow.removeClass(lb.left_disabled_arrow);
-		lb.light_right_arrow.removeClass(lb.right_disabled_arrow);
+		lb.light_left_arrow.removeClass(lb.disabled_arrow);
+		lb.light_right_arrow.removeClass(lb.disabled_arrow);
 
 		if ( lb.current >= lb.total-1 ) 
 		{
-			lb.light_right_arrow.addClass(lb.right_disabled_arrow);
+			lb.light_right_arrow.addClass(lb.disabled_arrow);
 		}
 
 		if ((lb.current-1) <= -1) 
 		{
-			lb.light_left_arrow.addClass(lb.left_disabled_arrow);
+			lb.light_left_arrow.addClass(lb.disabled_arrow);
 		}
 
 	}
+
+	// function that resizes the image when the lightbox is in image class mode
+	var imgResize = function( w, h ){
+					//this function runs on the scope of the lightbox content container
+					
+					//gets the image dimensions
+					var currentimg=jQuery(this).children('img');
+					var currentwidth=currentimg.width();
+					var currentheight=currentimg.height();
+					
+					//calculates screen aspect ratio
+					var sar=h/w;
+					//calculates image aspect ratio
+					var far=currentheight/currentwidth;
+					
+					//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
+					if( sar < far ){ 
+						// if screen wider than image adjust by height 
+						var nextheight=h*0.8;
+						var nextwidth=currentwidth*(nextheight/currentheight);
+					}else {
+						//if foto wider than screen adjust by height
+						var nextwidth=w*0.8;
+						var nextheight=currentheight*(nextwidth/currentwidth);
+					}
+					
+					//sets calculated height and width
+					currentimg.height(nextheight);
+					currentimg.width(nextwidth);
+				
+				}
 
 	var resize = function()
 	{
@@ -260,9 +323,16 @@
 			screen_width = jQuery(window).width();
 			screen_height = jQuery(window).height();
 			
-			if( lb.resize!=null ){
+			if( lb.resize!=null ){ // if there is an external resize function call it
 				lb.resize.call(lb.content, screen_width, screen_height );
+			} else {
+
+				if( !lb.source ){ // if there is no source than content is image and will be resized by internal function
+
+					imgResize.call(lb.content, screen_width, screen_height );
+
 				}
+			}
 
 			//Gets content size
 			lightbox_content_width = lb.container.width();
@@ -281,6 +351,7 @@
 			jQuery("."+lb.right_arrow).css("top", lightbox_arrows_top);
 	}
 
+	//closes the lighbox
 	var close = function() 
 	{
 		var lb = this.vars;

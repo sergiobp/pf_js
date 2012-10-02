@@ -16,9 +16,14 @@
 	  <script src="js/libs/modernizr-2.5.3.min.js"></script>
 	  <script src="js/jQuery/jquery-1.8.0.min.js"></script>
 	  
+	  <script src="js/demo.js"></script>
+
 	  <script src="slider/pf_slider.js"></script>
 	  <link rel="stylesheet" href="slider/pf_slider.css">
 	  <link rel="stylesheet" href="slider/pf_slider_custom.css">
+
+	  <script src="lightbox/pf_lightbox.js"></script>
+	  <link rel="stylesheet" href="lightbox/pf_lightbox.css">
 	  
 	</head>
 	<body>
@@ -30,28 +35,35 @@
 			<div id="slider-basico" class="pf-slider">
 				<div class="pf-mask">
 					<ul>
-						<li><img src="conteudo_demo/largura940/florzinhas_neve.jpg" alt="florzinhas_neve" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/folhas_vale_anso.jpg" alt="folhas_vale_anso" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/furinhos_albazin_granada.jpg" alt="furinhos_albazin_granada" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/luzes_bfi_londres.jpg" alt="luzes_bfi_londres" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/micro_vale_anso.jpg" alt="micro_vale_anso" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/mini_arvores_vale_anso.jpg" alt="mini_arvores_vale_anso" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/parede_amarela_madri.jpg" alt="parede_amarela_madri" width="940" height="600" /></li>
-						<li><img src="conteudo_demo/largura940/parede_faixa_Azul_rua_madri.jpg" alt="parede_faixa_Azul_rua_madri" width="940" height="600" /></li>
+						<li  class="lightbox-img" data-content="conteudo_demo/florzinhas_neve.jpg"  data-width="1440" data-height="900">
+							<img src="conteudo_demo/largura940/florzinhas_neve.jpg" alt="florzinhas_neve" width="940" height="600" />
+						</li>
+						<li class="lightbox-img" data-content="conteudo_demo/largura940/folhas_vale_anso.jpg" data-width="1440" data-height="960">
+							<img src="conteudo_demo/largura940/folhas_vale_anso.jpg" alt="folhas_vale_anso" width="940" height="600" />
+						</li>
+						<li  class="lightbox-img" data-content="conteudo_demo/furinhos_albazin_granada.jpg" data-width="1440" data-height="936">
+							<img src="conteudo_demo/largura940/furinhos_albazin_granada.jpg" alt="furinhos_albazin_granada" width="940" height="600" data-content="conteudo_demo/furinhos_albazin_granada.jpg" />
+						</li>
+						<li class="lightbox-img" data-content="conteudo_demo/luzes_bfi_londres.jpg" data-width="1440" data-height="960">
+							<img src="conteudo_demo/largura940/luzes_bfi_londres.jpg" alt="luzes_bfi_londres" width="940" height="600" data-content="conteudo_demo/luzes_bfi_londres.jpg" />
+						</li>
+						<li class="lightbox-img" data-content="conteudo_demo/micro_vale_anso.jpg"data-width="1440" data-height="960" >
+							<img src="conteudo_demo/largura940/micro_vale_anso.jpg" alt="micro_vale_anso" width="940" height="600" data-content="conteudo_demo/micro_vale_anso.jpg" />
+						</li>
+						<li class="lightbox-img" data-content="conteudo_demo/mini_arvores_vale_anso.jpg" data-width="1440" data-height="900">
+							<img src="conteudo_demo/largura940/mini_arvores_vale_anso.jpg" alt="mini_arvores_vale_anso" width="940" height="600" data-content="conteudo_demo/mini_arvores_vale_anso.jpg" />
+						</li>
+						<li class="lightbox-img" data-content="conteudo_demo/parede_amarela_madri.jpg" data-width="1440" data-height="960">
+							<img src="conteudo_demo/largura940/parede_amarela_madri.jpg" alt="parede_amarela_madri" width="940" height="600" data-content="conteudo_demo/parede_amarela_madri.jpg" />
+						</li>
+						<li  class="lightbox-img" data-content="conteudo_demo/parede_faixa_Azul_rua_madri.jpg" data-width="1440" data-height="900">
+							<img src="conteudo_demo/largura940/parede_faixa_Azul_rua_madri.jpg" alt="parede_faixa_Azul_rua_madri" width="940" height="600"  />
+						</li>
 					</ul>
 				</div>
 				<button class="arrow left"></button>
 				<button class="arrow right"></button>
 			</div>
-			
-			<script>
-				jQuery(document).ready( function(){
-					jQuery('#slider-basico').slider({ 
-					"single_margin" : 0
-				});
-				});
-			
-			</script>
 			
 		  </div>
 	  <footer>
