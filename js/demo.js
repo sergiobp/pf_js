@@ -40,7 +40,7 @@ jQuery(document).ready( function(){
 
 					};
 
-					jQuery('#slider-basico').slider({ "single_margin" : 0 });
+					jQuery('#slider-basico').slider({ "auto_slide" : true, "auto_time" : 5000 });
 					var myLightbox = jQuery('body');
 					myLightbox.lightbox( 'init')
 
