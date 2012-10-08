@@ -8,18 +8,18 @@
 		position: absolute; 
 		top:285px; 
 		cursor: pointer; 
-		-moz-transition: 1s; /* Firefox 4 */
-		-webkit-transition: 1s; /* Safari and Chrome */
-		-o-transition: 1s; /* Opera */
-		transition: 1s;
+		-moz-transition: 300ms; /* Firefox 4 */
+		-webkit-transition: 300ms; /* Safari and Chrome */
+		-o-transition: 300ms; /* Opera */
+		transition: 300ms;
 		}
 .pf-slider .left { background-color: blue; left: -50px;}
 .pf-slider .right { background-color: blue; right: -50px;}
 .pf-slider .arrow.off{ opacity: .5; }
 .pf-slider .paginator { position:absolute;  margin:auto; bottom: 0; right: 0; padding:3px; background-color: white;}
 .pf-slider .paginator .page-ctrl { width:10px; height: 10px; float: left; margin: 2px; background-color: black; cursor: pointer;
-									-moz-transition: 1s; /* Firefox 4 */
-									-webkit-transition: 1s; /* Safari and Chrome */
-									-o-transition: 1s; /* Opera */
-									transition: 1s;}
+									-moz-transition: 300ms; /* Firefox 4 */
+									-webkit-transition: 300ms; /* Safari and Chrome */
+									-o-transition: 300ms; /* Opera */
+									transition: 300ms;}
 .pf-slider .paginator .page-ctrl.active { background-color: green; }
