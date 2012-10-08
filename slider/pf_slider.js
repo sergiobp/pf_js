@@ -20,14 +20,13 @@
     // settings default
     var defaults = 
     	{ 
-			"single_width" : 100,
 			"single_margin" : 0,
 			"arrow_left_class" : ".arrow.left",
 			"arrow_right_class" : ".arrow.right",
 			"arrow_off_class":"off",
-			"paginator" : false,
+			"paginate" : false,
 			"auto_slide":false,
-			"auto_time":1000
+			"auto_time":1000,
         };
 
     //slider DOM elements
@@ -35,7 +34,9 @@
     	frame, 
     	itens, 
     	leftArrow, 
-    	rightArrow;
+    	rightArrow,
+    	paginator,
+    	pageCtrls;
 
     //status of the slider
     var currentSlide=0, // the item that is currrent on display
@@ -43,6 +44,12 @@
     	leftEnd, 
     	totalWidth, // sum of width of all itens, including margins
     	transBlock; //flag to block interaction during transitions
+
+    // paginator elements
+    var paginate, // true if slider has a paginator
+    	paginator, // the paginator html element
+    	pageCtrls, // buttons to paginate. one por each item.
+    	pageCtrlActiveClass = 'active'; // class that mark a pageCtrl as active. its a constant
 
     //classes
     var arrowOffClass;
@@ -65,12 +72,13 @@
 			arrowOffClass = settings.arrow_off_class;
 			autoSlide = settings.auto_slide;
 			autoTime = settings.auto_time;
+			paginate = settings.paginate;
 
 			parent 			= this;
 			frame 			= parent.find('ul');
 			itens 			= frame.find('li');
 			sl.single_width = itens.first().width();
-			sl.total 		= itens.size();
+			sl.total 		= itens.length;
 			leftArrow 	= jQuery(leftArrow_class);
 			rightArrow 	= jQuery(rightArrow_class);
 			
@@ -91,8 +99,44 @@
 				return
 			}
 
+			// add pages controls to the paginator
+			function addPage( index ){
+				index++;
+				paginator.append( '<div class="page-ctrl" data-page="' + index.toString() + '" ></div>' )
+			}
 
-			updateNavigation.call(this);
+			// responds to a click in the paginator
+			function gotoPage(){
+
+				var whereTo = jQuery( this ).attr( 'data-page' );
+
+				if( !transBlock ){
+
+					pageCtrls.removeClass( 'active' );
+					jQuery( this ).addClass( 'active' );
+
+					clearInterval( autoTimer );
+					transBlock=true
+					currentSlide = whereTo;
+					leftEnd = sizeItem * (currentSlide - 1);
+					frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+					
+					}
+
+			}
+
+			//builds the paginator
+			if ( paginate ) {
+
+				parent.append( '<nav class="paginator"></nav>' );
+				paginator = parent.find( 'nav.paginator' );
+				itens.each( addPage );
+				pageCtrls = jQuery( '.paginator .page-ctrl' ).click( gotoPage );
+
+			};
+
+			//turns arrows on and off
+			updateNavigation();
 
 			//if auto_slide=true initiate automatic sliding
 			if( autoSlide ){
@@ -181,8 +225,14 @@
         
 	var updateNavigation = function() {
 			
+			//clear arrows display view state
 			rightArrow.removeClass(arrowOffClass);	
 			leftArrow.removeClass(arrowOffClass);
+			//clear paginator view state
+			pageCtrls.removeClass( pageCtrlActiveClass );
+
+			// adjusts page controls currents view state
+			jQuery( pageCtrls[ currentSlide-1 ] ).addClass( pageCtrlActiveClass );
 			
 			if( frame.position().left == 0)
 			{ //slider is all to the left and we must disable left click
