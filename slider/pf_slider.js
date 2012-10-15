@@ -9,7 +9,6 @@
  * > slider itens resize when slider resizes
  * > touch swipe
  * > layout das setas
- * > consider the margin when calculating sliders total width
  */
  
  
@@ -91,16 +90,19 @@ pf_js.slider = function ( root, options ) {
 
 	}
         
+    // adjusts the view of arrows and paginator controls after moving the slider
 	var updateNavigation = function() {
 			
 			//clear arrows display view state
 			rightArrow.removeClass(arrowOffClass);	
 			leftArrow.removeClass(arrowOffClass);
-			//clear paginator view state
-			pageCtrls.removeClass( pageCtrlActiveClass );
 
-			// adjusts page controls currents view state
-			jQuery( pageCtrls[ currentSlide-1 ] ).addClass( pageCtrlActiveClass );
+			if ( paginate ) {
+				//clear paginator view state
+				pageCtrls.removeClass( pageCtrlActiveClass );
+				// adjusts page controls currents view state
+				jQuery( pageCtrls[ currentSlide-1 ] ).addClass( pageCtrlActiveClass );
+			}
 			
 			if( frame.position().left == 0)
 			{ //slider is all to the left and we must disable left click
@@ -114,6 +116,7 @@ pf_js.slider = function ( root, options ) {
 			}
 		}
 
+	// called by the auto slide timer interval
 	var autoSliding = function(){
 
 		var firstItemCopy, leftEnd;
@@ -131,7 +134,7 @@ pf_js.slider = function ( root, options ) {
 
 					} else {
 						transBlock = true;
-						// to go back to first element slider goes
+						// to go back to first element slider duplicates the first element on the end
 						firstItemCopy = jQuery( itens[0] ).clone();
 						frame.append( firstItemCopy );
 						frame.width( totalWidth + slideWidth );
@@ -150,7 +153,7 @@ pf_js.slider = function ( root, options ) {
 
 	}
     
-    var settings = $.extend({}, defaults, options);
+    var settings = jQuery.extend({}, defaults, options);
 
     // stores settings
 	leftArrowClass  = settings.arrow_left_class;
@@ -164,11 +167,11 @@ pf_js.slider = function ( root, options ) {
 	parent 			= jQuery( '#' + root );
 	frame 			= parent.find('ul');
 	itens 			= frame.find('li');
-	leftArrow 		= jQuery(leftArrowClass);
-	rightArrow 		= jQuery(rightArrowClass);
+	leftArrow 		= parent.find(leftArrowClass);
+	rightArrow 		= parent.find(rightArrowClass);
 
 	// gets deimensions
-	slideWidth 	= itens.first().width();
+	slideWidth 	= itens.first().outerWidth(true);
 	totalWidth	= slideWidth * itens.length;
 
 	//initialize slider state
