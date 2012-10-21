@@ -1,311 +1,300 @@
+/*global window, pf_js, document, jQuery*/
 window.pf_js = window.pf_js || {};
 pf_js.util = pf_js.util || {};
 
-(function($, window) {
+(function ($, window) {
+    //apply strict mode
+    "use strict";
 
-	// Create the defaults once
-    var defaults = 
-	{
+    // Create the defaults once
+    var defaults = {
         source: null,
         resize: null,
         lclass: "lightbox-img",
         imgAttr: "data-content",
         controls: "controls",
         contentsContainer: "lightbox-content",
-		leftArrow : "lightbox-left-arrow",
-		rightArrow : "lightbox-right-arrow",
-		disabledArrow : "disabled-arrow",
-		closeButton : "close-button",
-		callbackContent : false,
-		fadeInTime : 300,
-		fadeOutTime: 300,
-		percentageOfDisplayUsage: 80
+        leftArrow : "lightbox-left-arrow",
+        rightArrow : "lightbox-right-arrow",
+        disabledArrow : "disabled-arrow",
+        closeButton : "close-button",
+        callbackContent : false,
+        fadeInTime : 300,
+        fadeOutTime: 300,
+        percentageOfDisplayUsage: 80
     };
 
-	pf_js.util.LightBox = function(options) {
+    pf_js.util.LightBox = function (options) {
 
-	    var settings = $.extend({}, defaults, options);
+        var settings = $.extend({}, defaults, options),
+            //initial state
+            current = 0,
+            total = 0,
+            //elements that will be displayed
+            elements,
+            //global elements
+            body = $('body'),
+            win = $(window),
+            doc = $(document),
+            overlay,
+            container,
+            controls,
+            lightBoxContentsContainer,
+            leftArrow,
+            rightArrow,
+            closeButton,
 
-	    //initial state
-	    var current = 0,
-	    total = 0;
+            //build the entire html structure
+            setupLightBoxStructure = function () {
+                body.append('<div id="lightbox" style="display:none;"></div>');
+                overlay = $("#lightbox");
 
-	    //elements that will be displayed
-	    var elements;
+                body.append('<div id="lightbox-container" style="display:none;"></div>');
+                container = $("#lightbox-container");
 
-	    //global elements
-	   	var body = $('body'),
-	   	win = $(window),
-		doc = $(document),
-	   	overlay,
-	   	container,
-	   	controls,
-	   	lightBoxContentsContainer,
-	   	leftArrow,
-	   	rightArrow,
-	   	closeButton;
+                container.append('<div class="controls"></div>');
+                controls = $("." + settings.controls);
 
+                container.append('<div class="lightbox-content"></div>');
+                lightBoxContentsContainer = $("." + settings.contentsContainer);
 
-	    //setup the initial state and start the application
-		var initialConfig = function() {
-			if(!settings.source){
+                controls.append('<div class="' + settings.leftArrow + '"></div>');
+                leftArrow = $("." + settings.leftArrow);
+                controls.append('<div class="' + settings.rightArrow + '"></div>');
+                rightArrow = $("." + settings.rightArrow);
+                controls.append('<div class="' + settings.closeButton + '"></div>');
+                closeButton = $("." + settings.closeButton);
+            },
 
-				elements = $('.' + settings.lclass);
+            insertContent = function (c) {
+                var content = c;
 
-				if(elements.length == 0){ 
-					throw "no elements has " + settings.lclass + " class and there's no source method"
-				} else {
-					total = elements.length;
-				}
-			}
+                //reset container content and insert the new one
+                container.css('display', 'none');
+                lightBoxContentsContainer.html('');
+                lightBoxContentsContainer.append(content);
 
-			elements
-				.bind('click', function() {
-					openLightBox($(this));
-				});
-		};
+                //Resizing lightbox
+                container.fadeIn(settings.fadeInTime);
+            },
 
-		//build the entire html structure
-		var setupLightBoxStructure = function() {
-			body.append('<div id="lightbox" style="display:none;"></div>');
-			overlay = $("#lightbox");
+            resolveContent = function () {
+                var element,
+                    content,
+                    contentWidth,
+                    contentHeight;
 
-			body.append('<div id="lightbox-container" style="display:none;"></div>');
-			container = $("#lightbox-container");
-			
-			container.append('<div class="controls"></div>');
-			controls = $("." + settings.controls);
+                if (settings.source) {
 
-			container.append('<div class="lightbox-content"></div>');
-			lightBoxContentsContainer = $("." + settings.contentsContainer);
+                    window.source(current);
 
-			controls.append('<div class="' + settings.leftArrow + '"></div>');
-			leftArrow = $("." + settings.leftArrow);
-					
-			controls.append('<div class="' + settings.rightArrow + '"></div>');
-			rightArrow = $("." + settings.rightArrow);
-		
-			controls.append('<div class="' + settings.closeButton + '"></div>');
-			closeButton = $("." + settings.closeButton);
-		};
+                } else {
 
-		var showOverlay = function() {
-			overlay
-				.fadeIn(settings.fadeInTime);
-		};
+                    element         = $(elements.get(current));
+                    contentWidth    = element.data('width');
+                    contentWidth    = (contentWidth) ? 'width = "' + contentWidth + 'px"' : '';
+                    contentHeight   = element.data('height');
+                    contentHeight   = (contentHeight) ? 'height = "' + contentHeight + 'px"' : '';
+                    content         = '<img src="' + element.data('content') + '" ' + contentWidth + ' ' + contentHeight + '/>';
 
-		var openLightBox = function(image) {
-			setupLightBoxStructure();
-			bindMethods();
+                    insertContent(content);
+                }
+            },
 
-			//update current
-			current = elements.index(image);
+            // function that resizes the image when the lightbox is in image class mode
+            imgResize = function (w, h) {
+                //gets the image dimensions
+                var currentImg      = lightBoxContentsContainer.find('img'),
+                    currentWidth    = currentImg.width(),
+                    currentHeight   = currentImg.height(),
 
-			showOverlay();
-			navigation();
-		};
+                    //calculates screen aspect ratio
+                    screenAspectRatio = h / w,
 
-		//config buttons actions
-		var bindMethods = function() {
+                    //calculates image aspect ratio
+                    imageAspectRatio = currentHeight / currentWidth,
 
-			//Configuring lightbox navigation
-			rightArrow
-				.bind('click', navRight);
-			
-			leftArrow
-				.bind('click', navLeft);
+                    //the new Height and Width
+                    nextHeight,
+                    nextWidth;
 
-			//Closing lightbox
-			overlay
-				.bind('click', closeLightBox);
+                //compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
+                if (screenAspectRatio < imageAspectRatio) {
+                    // if screen wider than image adjust by height 
+                    nextHeight = h * (settings.percentageOfDisplayUsage / 100);
+                    nextWidth  = currentWidth * (nextHeight / currentHeight);
+                } else {
+                    //if foto wider than screen adjust by height
+                    nextWidth  = w * (settings.percentageOfDisplayUsage / 100);
+                    nextHeight = currentHeight * (nextWidth / currentWidth);
+                }
 
-			doc.bind('keyup', function(e) {
-				if (e.keyCode == 27) 
-				{ 
-					closeLightBox();
-				}
-			});
-			
-			closeButton.bind('click', closeLightBox);
+                //sets calculated height and width
+                currentImg.height(nextHeight);
+                currentImg.width(nextWidth);
+            },
 
-			win.bind('resize.lightbox', resizeLightBox);
-		};
+            resizeLightBox = function () {
+                var windowWidth,
+                    windowHeight,
+                    screenWidth,
+                    screenHeight,
+                    contentWidth,
+                    contentHeight,
+                    contentTop,
+                    contentLeft,
+                    arrowsTop;
 
-		var resolveContent = function() {
-			var element, content, contentWidth, contentHeight;
+                //Gets body size including scroll size for overlay
+                windowWidth = win.width();
+                windowHeight = win.height();
 
-			if(settings.source){
+                //Gets window size 
+                screenWidth = win.width();
+                screenHeight = win.height();
 
-				source(current);
+                if (settings.resize !== null) { // if there is an external resize function call it
+                    settings.resize(screenWidth, screenHeight);
+                } else {
+                    if (!settings.source) { // if there is no source than content is image and will be resized by internal function
+                        imgResize(screenWidth, screenHeight);
+                    }
+                }
 
-			} else { 
+                //Gets content size
+                contentWidth    = container.width();
+                contentHeight   = container.height();
 
-				element 		= $(elements.get(current));
-				contentWidth 	= element.data('width');
-				contentWidth 	= (contentWidth) ? 'width = "' + contentWidth + 'px"':'';
-				contentHeight 	= element.data('height');
-				contentHeight 	= (contentHeight) ? 'height = "' + contentHeight + 'px"':'';
-				content 		= '<img src="' + element.data('content') +'" ' + contentWidth + ' ' + contentHeight + '/>';
+                //Left and top of public
+                contentTop  = (screenHeight - contentHeight) / 2;
+                contentLeft = (screenWidth - contentWidth) / 2;
+                arrowsTop   = (contentHeight - 46) / 2;
 
-				insertContent(content);
-			}
-		};
+                //Apply all css during resize
+                container.css({"top": contentTop, "left": contentLeft});
+                overlay.css("height", windowHeight);
 
-		var insertContent = function(c) {
-			var content = c;
-		    
-		    //reset container content and insert the new one
-		    container.css('display', 'none');
-		    lightBoxContentsContainer.html('');
-			lightBoxContentsContainer.append(content);
+                leftArrow.css("top", arrowsTop);
+                rightArrow.css("top", arrowsTop);
+            },
 
-			//Resizing lightbox
-			container.fadeIn(settings.fadeInTime);
-		};
+            navigation = function () {
+                resolveContent();
+                resizeLightBox();
 
+                leftArrow.removeClass(settings.disabledArrow);
+                rightArrow.removeClass(settings.disabledArrow);
 
-		//NAVIGATION
-		var navLeft = function() 
-	    {
-			if (current > 0) 
-			{
-				current--;
-				navigation();
-			}
-	    };
+                if (current >= total - 1) {
+                    rightArrow.addClass(settings.disabledArrow);
+                }
 
-	    var navRight = function() 
-	    {
-			if (current < total - 1) 
-			{
-				current++;
-				navigation();
-			}
-	    };
+                if ((current - 1) <= -1) {
+                    leftArrow.addClass(settings.disabledArrow);
+                }
+            },
 
-		var navigation = function() 
-		{	
-			resolveContent();
-			resizeLightBox();
+            //NAVIGATION
+            navLeft = function () {
+                if (current > 0) {
+                    current -= 1;
+                    navigation();
+                }
+            },
 
-			leftArrow.removeClass(settings.disabledArrow);
-			rightArrow.removeClass(settings.disabledArrow);
+            navRight = function () {
+                if (current < total - 1) {
+                    current += 1;
+                    navigation();
+                }
+            },
 
-			if (current >= total - 1) 
-			{
-				rightArrow.addClass(settings.disabledArrow);
-			}
+            showOverlay = function () {
+                overlay
+                    .fadeIn(settings.fadeInTime);
+            },
 
-			if ((current - 1) <= - 1) 
-			{
-				leftArrow.addClass(settings.disabledArrow);
-			}
-		};
+            closeLightBox = function () {
+                container
+                    .fadeOut(settings.fadeOutTime)
+                    .empty()
+                    .detach();
 
+                overlay
+                    .fadeOut(settings.fadeOutTime)
+                    .empty()
+                    .detach();
 
-		// function that resizes the image when the lightbox is in image class mode
-		var imgResize = function( w, h ){
-			//gets the image dimensions
-			var currentImg 		= lightBoxContentsContainer.find('img');
-			var currentWidth 	= currentImg.width();
-			var currentHeight 	= currentImg.height();
-			
-			//calculates screen aspect ratio
-			var screenAspectRatio = h / w;
+                win.unbind('.lightbox');
+            },
 
-			//calculates image aspect ratio
-			var imageAspectRatio = currentHeight / currentWidth;
+            //config buttons actions
+            bindMethods = function () {
 
-			//the new Height and Width
-			var nextHeight, nextWidth;
+                //Configuring lightbox navigation
+                rightArrow
+                    .bind('click', navRight);
 
-			//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
-			if(screenAspectRatio < imageAspectRatio){ 
-				// if screen wider than image adjust by height 
-				nextHeight = h * (settings.percentageOfDisplayUsage / 100);
-				nextWidth  = currentWidth * (nextHeight / currentHeight);
-			}else {
-				//if foto wider than screen adjust by height
-				nextWidth  = w * (settings.percentageOfDisplayUsage / 100);
-				nextHeight = currentHeight * (nextWidth / currentWidth);
-			}
-			
-			//sets calculated height and width
-			currentImg.height(nextHeight);
-			currentImg.width(nextWidth);
-		};
+                leftArrow
+                    .bind('click', navLeft);
 
+                //Closing lightbox
+                overlay
+                    .bind('click', closeLightBox);
 
-		var resizeLightBox = function() {
-			var windowWidth,
-				windowHeight,
-				screenWidth,
-				screenHeight,
-				contentWidth,
-				contentHeight,
-				contentTop,
-				contentLeft,
-				arrowsTop;
+                doc.bind('keyup', function (e) {
+                    if (e.keyCode === 27) {
+                        closeLightBox();
+                    }
+                });
 
-			//Gets body size including scroll size for overlay
-			windowWidth = win.width();
-			windowHeight = win.height();
+                closeButton.bind('click', closeLightBox);
 
-			//Gets window size 
-			screenWidth = win.width();
-			screenHeight = win.height();
-			
-			if(settings.resize != null) { // if there is an external resize function call it
-				settings.resize(content, screenWidth, screenHeight);
-			} else {
-				if(!settings.source){ // if there is no source than content is image and will be resized by internal function
-					imgResize(screenWidth, screenHeight);
-				}
-			}
+                win.bind('resize.lightbox', resizeLightBox);
+            },
 
-			//Gets content size
-			contentWidth 	= container.width();
-			contentHeight 	= container.height();
+            openLightBox = function (image) {
+                setupLightBoxStructure();
+                bindMethods();
 
-			//Left and top of public
-			contentTop 	= (screenHeight - contentHeight) / 2;
-			contentLeft = (screenWidth - contentWidth) / 2;
-			arrowsTop 	= (contentHeight - 46) / 2;
+                //update current
+                current = elements.index(image);
 
-			//Apply all css during resize
-			container.css({"top": contentTop, "left": contentLeft});
-			overlay.css("height", windowHeight);
-			
-			leftArrow.css("top", arrowsTop);
-			rightArrow.css("top", arrowsTop);
-		};
+                showOverlay();
+                navigation();
+            },
 
-		var closeLightBox = function() {
-			container
-				.fadeOut(settings.fadeOutTime)
-				.empty()
-				.detach();
+            //setup the initial state and start the application
+            initialConfig = function () {
+                if (!settings.source) {
 
-			overlay
-				.fadeOut(settings.fadeOutTime)
-				.empty()
-				.detach();
+                    elements = $('.' + settings.lclass);
 
-			win.unbind('.lightbox');
-		};
+                    if (elements.length === 0) {
+                        throw "no elements has " + settings.lclass + " class and there's no source method";
+                    } else {
+                        total = elements.length;
+                    }
+                }
 
-		return {
-			init: function() {
-				initialConfig();
-			},
-			open: function() {
-				setupLightBoxStructure();
-			},
-			initializeContent: function(content) {
-				insertContent(content);
-			}
-		}
+                elements
+                    .bind('click', function () {
+                        openLightBox($(this));
+                    });
+            };
 
-	};
+        return {
+            init: function () {
+                initialConfig();
+            },
+            open: function () {
+                setupLightBoxStructure();
+            },
+            initializeContent: function (content) {
+                insertContent(content);
+            }
+        };
+
+    };
 
 }(jQuery, window));
