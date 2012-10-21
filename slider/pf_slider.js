@@ -1,4 +1,4 @@
-/*
+	/*
  *  Project: pf_slider
  *  Description: multi use horizontal slider jquery plugin
  *  Author: Luiz Senna
@@ -11,88 +11,86 @@
  * > layout das setas
  */
  
- 
-if( !window.pf_js ){ 
-	pf_js = new Object; 
-}
+window.pf_js = window.pf_js || {};
 
 
-// the constructor receives the id of the root element of the slider and an optons object
-pf_js.slider = function ( root, options ) {
+(function($) {
 
-    //slider DOM elements
-    var parent, 
-    	frame, 
-    	itens, 
-    	leftArrow, 
-    	rightArrow,
-    	paginator,
-    	pageCtrls;
+	// the constructor receives the id of the root element of the slider and an optons object
+	pf_js.slider = function ( root, options ) {
 
-    //slider dimensions
-    var slideWidth,
-    	totalWidth;
+	    //slider DOM elements
+	    var parent, 
+	    	frame, 
+	    	itens, 
+	    	leftArrow, 
+	    	rightArrow,
+	    	paginator,
+	    	pageCtrls;
 
-    //status of the slider
-    var currentSlide=0, // the item that is currrent on display 
-    	totalWidth, // sum of width of all itens, including margins
-    	transBlock; //flag to block interaction during transitions
+	    //slider dimensions
+	    var slideWidth,
+	    	totalWidth;
 
-    // paginator elements
-    var paginate, // true if slider has a paginator
-    	paginator, // the paginator html element
-    	pageCtrls, // buttons to paginate. one por each item.
-    	pageCtrlActiveClass = 'active'; // class that mark a pageCtrl as active. its a constant
+	    //status of the slider
+	    var currentSlide=0, // the item that is currrent on display 
+	    	totalWidth, // sum of width of all itens, including margins
+	    	transBlock; //flag to block interaction during transitions
 
-    //classes
-    var arrowOffClass,
-    	leftArrowClass,
-		rightArrowClass;
+	    // paginator elements
+	    var paginate, // true if slider has a paginator
+	    	paginator, // the paginator html element
+	    	pageCtrls, // buttons to paginate. one por each item.
+	    	pageCtrlActiveClass = 'active'; // class that mark a pageCtrl as active. its a constant
 
-    //automatic sliding
-    var autoTimer, autoSlide, autoTime;
+	    //classes
+	    var arrowOffClass,
+	    	leftArrowClass,
+			rightArrowClass;
 
-    // settings default
-    var defaults = 
-    	{ 
+	    //automatic sliding
+	    var autoTimer, autoSlide, autoTime;
+
+	    // settings default
+	    var defaults = {
 			"arrow_left_class" : ".arrow.left",
 			"arrow_right_class" : ".arrow.right",
 			"arrow_off_class":"off",
 			"paginate" : false,
 			"auto_slide":false,
 			"auto_time":1000,
-        };
+	    };
 
 
-    // add pages controls to the paginator
-	function addPage( index ){
-		index++;
-		paginator.append( '<div class="page-ctrl" data-page="' + index.toString() + '" ></div>' )
-	}
+	    // add pages controls to the paginator
+		function addPage( index ){
+			index++;
+			paginator.append( '<div class="page-ctrl" data-page="' + index.toString() + '" ></div>' )
+		};
 
-	// responds to a click in the paginator
-	function gotoPage(){
+		// responds to a click in the paginator
+		function gotoPage(){
 
-		var whereTo = jQuery( this ).attr( 'data-page' );
+			var whereTo = $( this ).attr( 'data-page' );
 
-		if( !transBlock ){
+			if( !transBlock ){
 
-			pageCtrls.removeClass( 'active' );
-			jQuery( this ).addClass( 'active' );
+				pageCtrls.removeClass( 'active' );
+				$( this ).addClass( 'active' );
 
-			clearInterval( autoTimer );
-			transBlock=true
-			currentSlide = whereTo;
-			leftEnd = slideWidth * (currentSlide - 1);
-			frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
-			
+				clearInterval( autoTimer );
+				transBlock=true
+				currentSlide = whereTo;
+				leftEnd = slideWidth * (currentSlide - 1);
+				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+				
 			}
 
-	}
-        
-    // adjusts the view of arrows and paginator controls after moving the slider
-	var updateNavigation = function() {
-			
+		};
+	        
+	    // adjusts the view of arrows and paginator controls after moving the slider
+		var updateNavigation = function() {
+				
 			//clear arrows display view state
 			rightArrow.removeClass(arrowOffClass);	
 			leftArrow.removeClass(arrowOffClass);
@@ -101,129 +99,128 @@ pf_js.slider = function ( root, options ) {
 				//clear paginator view state
 				pageCtrls.removeClass( pageCtrlActiveClass );
 				// adjusts page controls currents view state
-				jQuery( pageCtrls[ currentSlide-1 ] ).addClass( pageCtrlActiveClass );
+				$( pageCtrls[ currentSlide-1 ] ).addClass( pageCtrlActiveClass );
 			}
 			
-			if( frame.position().left == 0)
-			{ //slider is all to the left and we must disable left click
+			if( frame.position().left == 0) { //slider is all to the left and we must disable left click
 				leftArrow.addClass(arrowOffClass);				
 			}
 			
 			
-			if( ( frame.position().left + totalWidth ) <= ( parent.width() ) )
-			{ //slider is all to the right 
+			if( ( frame.position().left + totalWidth ) <= ( parent.width() ) ) { //slider is all to the right 
 				rightArrow.addClass(arrowOffClass);
 			}
-		}
+		};
 
-	// called by the auto slide timer interval
-	var autoSliding = function(){
+		// called by the auto slide timer interval
+		var autoSliding = function(){
 
-		var firstItemCopy, leftEnd;
+			var firstItemCopy, leftEnd;
 
-		if( !transBlock ){
+			if( !transBlock ){
 
-			if( (( frame.position().left + totalWidth ) >  parent.width()) )
-					{	
-						transBlock = true;
-						leftEnd = slideWidth * currentSlide;
-						frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic" , complete:function(){ updateNavigation();
-							transBlock = false;
+				if( (( frame.position().left + totalWidth ) >  parent.width()) )
+				{	
+					transBlock = true;
+					leftEnd = slideWidth * currentSlide;
+					frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic" , complete:function(){ updateNavigation();
+						transBlock = false;
+					 }});
+					currentSlide++;
+
+				} else {
+					transBlock = true;
+					// to go back to first element slider duplicates the first element on the end
+					firstItemCopy = $( itens[0] ).clone();
+					frame.append( firstItemCopy );
+					frame.width( totalWidth + slideWidth );
+					leftEnd=totalWidth;
+					frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ 
+						frame.css('left',0);
+						parent.find('li').last().remove();
+						frame.width( totalWidth );
+						updateNavigation();
+						transBlock = false;
 						 }});
-						currentSlide++;
+					currentSlide = 1 ;
 
-					} else {
-						transBlock = true;
-						// to go back to first element slider duplicates the first element on the end
-						firstItemCopy = jQuery( itens[0] ).clone();
-						frame.append( firstItemCopy );
-						frame.width( totalWidth + slideWidth );
-						leftEnd=totalWidth;
-						frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ 
-							frame.css('left',0);
-							parent.find('li').last().remove();
-							frame.width( totalWidth );
-							updateNavigation();
-							transBlock = false;
-							 }});
-						currentSlide = 1 ;
-
-					}
-		}
-
-	}
-    
-    var settings = jQuery.extend({}, defaults, options);
-
-    // stores settings
-	leftArrowClass  = settings.arrow_left_class;
-	rightArrowClass = settings.arrow_right_class;
-	arrowOffClass 	= settings.arrow_off_class;
-	autoSlide 		= settings.auto_slide;
-	autoTime 		= settings.auto_time;
-	paginate 		= settings.paginate;
-
-	//gets and stores html elements
-	parent 			= jQuery( '#' + root );
-	frame 			= parent.find('ul');
-	itens 			= frame.find('li');
-	leftArrow 		= parent.find(leftArrowClass);
-	rightArrow 		= parent.find(rightArrowClass);
-
-	// gets deimensions
-	slideWidth 	= itens.first().outerWidth(true);
-	totalWidth	= slideWidth * itens.length;
-
-	//initialize slider state
-	currentSlide = 1; 		 //current slider = first slider
-	frame.width(totalWidth); //sets the size of the slider object to hold all items
-
-	//builds the paginator
-	if ( paginate ) {
-
-		parent.append( '<nav class="paginator"></nav>' );
-		paginator = parent.find( 'nav.paginator' );
-		itens.each( addPage );
-		pageCtrls = jQuery( '.paginator .page-ctrl' ).click( gotoPage );
-
-	};
-
-	//if auto_slide=true initiate automatic sliding
-	if( autoSlide ){
-
-		autoTimer = setInterval( autoSliding, autoTime )
-
-	}
-
-	// if there is no need for arrows hide then, other wise update their state.
-	if( totalWidth <= parent.width() ){
-		leftArrow.hide();
-		rightArrow.hide();
-	} else {
-		updateNavigation();
-	}
-
-	// sets the click on the left arrow
-	leftArrow.click(function(){
-		if(currentSlide>1 && !transBlock ){
-			clearInterval( autoTimer );
-			transBlock=true
-			currentSlide--;
-			leftEnd = slideWidth * (currentSlide - 1);
-			frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+				}
 			}
-	});
+		};
+	    
+	    var settings = $.extend({}, defaults, options);
 
-	//sets the click on the right arrow
-	rightArrow.click(function(){
-		if( ( ( frame.position().left + totalWidth ) >  parent.width() ) && !transBlock ){
-			clearInterval( autoTimer );
-			transBlock=true;
-			leftEnd = slideWidth * currentSlide;
-			frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
-			currentSlide++;
+	    // stores settings
+		leftArrowClass  = settings.arrow_left_class;
+		rightArrowClass = settings.arrow_right_class;
+		arrowOffClass 	= settings.arrow_off_class;
+		autoSlide 		= settings.auto_slide;
+		autoTime 		= settings.auto_time;
+		paginate 		= settings.paginate;
+
+		//gets and stores html elements
+		parent 			= $( '#' + root );
+		frame 			= parent.find('ul');
+		itens 			= frame.find('li');
+		leftArrow 		= parent.find(leftArrowClass);
+		rightArrow 		= parent.find(rightArrowClass);
+
+		// gets deimensions
+		slideWidth 	= itens.first().outerWidth(true);
+		totalWidth	= slideWidth * itens.length;
+
+		//initialize slider state
+		currentSlide = 1; 		 //current slider = first slider
+		frame.width(totalWidth); //sets the size of the slider object to hold all items
+
+		//builds the paginator
+		if ( paginate ) {
+
+			parent.append( '<nav class="paginator"></nav>' );
+			paginator = parent.find( 'nav.paginator' );
+			itens.each( addPage );
+			pageCtrls = $( '.paginator .page-ctrl' ).click( gotoPage );
+
+		};
+
+		//if auto_slide=true initiate automatic sliding
+		if( autoSlide ){
+
+			autoTimer = setInterval( autoSliding, autoTime )
+
 		}
 
-	}); 	  
+		// if there is no need for arrows hide then, other wise update their state.
+		if( totalWidth <= parent.width() ){
+			leftArrow.hide();
+			rightArrow.hide();
+		} else {
+			updateNavigation();
+		}
 
-}
+		// sets the click on the left arrow
+		leftArrow.click(function(){
+			if(currentSlide>1 && !transBlock ){
+				clearInterval( autoTimer );
+				transBlock=true
+				currentSlide--;
+				leftEnd = slideWidth * (currentSlide - 1);
+				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+				}
+		});
+
+		//sets the click on the right arrow
+		rightArrow.click(function(){
+			if( ( ( frame.position().left + totalWidth ) >  parent.width() ) && !transBlock ){
+				clearInterval( autoTimer );
+				transBlock=true;
+				leftEnd = slideWidth * currentSlide;
+				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+				currentSlide++;
+			}
+
+		}); 	  
+
+	}
+
+}(jQuery));

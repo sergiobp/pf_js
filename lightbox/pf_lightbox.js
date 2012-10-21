@@ -11,19 +11,19 @@
 
     // Create the defaults once
     var defaults = 
-    	{
-            source: null,
-            resize: null,
-            lclass: "lightbox-img",
-            img_attr: "data-content",
-			left_arrow : "lightbox-left-arrow",
-			right_arrow : "lightbox-right-arrow",
-			disabled_arrow : "disabled-arrow",
-			close_button : "close-button",
-			callback_content : false,
-        };
+	{
+        source: null,
+        resize: null,
+        lclass: "lightbox-img",
+        img_attr: "data-content",
+		left_arrow : "lightbox-left-arrow",
+		right_arrow : "lightbox-right-arrow",
+		disabled_arrow : "disabled-arrow",
+		close_button : "close-button",
+		callback_content : false,
+    };
     
-	var methods = 
+	var methods =
 	{
 		init : function(options)
 		{
@@ -47,7 +47,7 @@
 
 			if( !lb.source ){
 
-				lb.elements=jQuery( '.' + lb.lclass );
+				lb.elements = $( '.' + lb.lclass );
 
 				if( lb.elements.length==0 ){ 
 					throw "no elements has " + lclass + " class and there's no source method"
@@ -74,20 +74,20 @@
 			//----------------------------
 			//Adding HTML public
 			//----------------------------
-			jQuery("body").append('<div id="lightbox" style="display:none;"></div>');
-			lb.overlay = jQuery("#lightbox");
+			$("body").append('<div id="lightbox" style="display:none;"></div>');
+			lb.overlay = $("#lightbox");
 
-			jQuery("body").append('<div id="lightbox-container" style="display:none;"></div>');
-			lb.container = jQuery("#lightbox-container");
+			$("body").append('<div id="lightbox-container" style="display:none;"></div>');
+			lb.container = $("#lightbox-container");
 			
 			lb.container.append('<div class="'+lb.left_arrow+'"></div>');
-			lb.light_left_arrow = jQuery("."+lb.left_arrow);
+			lb.light_left_arrow = $("."+lb.left_arrow);
 					
 			lb.container.append('<div class="'+lb.right_arrow+'"></div>');
-			lb.light_right_arrow = jQuery("."+lb.right_arrow);
+			lb.light_right_arrow = $("."+lb.right_arrow);
 		
 			lb.container.append('<div class="'+lb.close_bt+'"></div>');
-			lb.close_button = jQuery("."+lb.close_bt);
+			lb.close_button = $("."+lb.close_bt);
 
 			//Resizing lightbox
 			resize.call(this)
@@ -114,7 +114,7 @@
 				close.call(scope)
 			});
 
-			jQuery(document).keyup(function(e) {
+			$(document).keyup(function(e) {
 				if (e.keyCode == 27) 
 				{ 
 					close.call(scope)
@@ -125,8 +125,8 @@
 				close.call(scope)
 			});
 
-			jQuery(window).bind('resize.lightbox', function(){
-				resize.call(scope)
+			$(window).bind('resize.lightbox', function(){
+				resize.call(scope);
 			});
 		},
 
@@ -141,7 +141,7 @@
 		    var scope = this;
 		    
 			lb.container.append('<div class="lbcontent">'+settings.c+'</div>');
-			lb.content = jQuery("#lightbox-container .lbcontent");
+			lb.content = $("#lightbox-container .lbcontent");
 			
 			lb.content.show();
 			lb.content.animate({ opacity: 0}, 0);
@@ -164,7 +164,8 @@
 
 			lb.container.fadeIn("slow");
 		}	
-	}
+	};
+
     // The actual plugin constructor
 	$.fn.lightbox = function(arg0, arg1) 
 	{
@@ -229,8 +230,7 @@
 			methods['putContent'].apply( scope, [{c:content}] );
 			
 		}
-
-	}
+	};
 
     var navLeft = function() 
     {
@@ -243,7 +243,7 @@
 			navigation.call(this);
 			resolveContent( this, lb );
 		}
-    }
+    };
 
     var navRight = function() 
     {
@@ -256,7 +256,7 @@
 			navigation.call(this);
 			resolveContent( this, lb );
 		}
-    }
+    };
 
 	var navigation = function() 
 	{
@@ -275,81 +275,81 @@
 			lb.light_left_arrow.addClass(lb.disabled_arrow);
 		}
 
-	}
+	};
 
 	// function that resizes the image when the lightbox is in image class mode
 	var imgResize = function( w, h ){
-					//this function runs on the scope of the lightbox content container
-					
-					//gets the image dimensions
-					var currentimg=jQuery(this).children('img');
-					var currentwidth=currentimg.width();
-					var currentheight=currentimg.height();
-					
-					//calculates screen aspect ratio
-					var sar=h/w;
-					//calculates image aspect ratio
-					var far=currentheight/currentwidth;
-					
-					//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
-					if( sar < far ){ 
-						// if screen wider than image adjust by height 
-						var nextheight=h*0.8;
-						var nextwidth=currentwidth*(nextheight/currentheight);
-					}else {
-						//if foto wider than screen adjust by height
-						var nextwidth=w*0.8;
-						var nextheight=currentheight*(nextwidth/currentwidth);
-					}
-					
-					//sets calculated height and width
-					currentimg.height(nextheight);
-					currentimg.width(nextwidth);
+		//this function runs on the scope of the lightbox content container
+		
+		//gets the image dimensions
+		var currentimg=$(this).children('img');
+		var currentwidth=currentimg.width();
+		var currentheight=currentimg.height();
+		
+		//calculates screen aspect ratio
+		var sar=h/w;
+		//calculates image aspect ratio
+		var far=currentheight/currentwidth;
+		
+		//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
+		if( sar < far ){ 
+			// if screen wider than image adjust by height 
+			var nextheight=h*0.8;
+			var nextwidth=currentwidth*(nextheight/currentheight);
+		}else {
+			//if foto wider than screen adjust by height
+			var nextwidth=w*0.8;
+			var nextheight=currentheight*(nextwidth/currentwidth);
+		}
+		
+		//sets calculated height and width
+		currentimg.height(nextheight);
+		currentimg.width(nextwidth);
 				
-				}
+	};
 
 	var resize = function()
 	{
-			var window_width, window_height, screen_width, screen_height;
-			var lightbox_content_width, lightbox_content_height;
-			var lightbox_content_top, lightbox_content_left, lightbox_arrows_top;
-			var lb = this.vars;
+		var window_width, window_height, screen_width, screen_height;
+		var lightbox_content_width, lightbox_content_height;
+		var lightbox_content_top, lightbox_content_left, lightbox_arrows_top;
+		var lb = this.vars;
 
-			//Gets body size including scroll size for overlay
-			window_width = jQuery(window).width();
-			window_height = jQuery(window).height();
+		//Gets body size including scroll size for overlay
+		window_width = $(window).width();
+		window_height = $(window).height();
 
-			//Gets window size 
-			screen_width = jQuery(window).width();
-			screen_height = jQuery(window).height();
-			
-			if( lb.resize!=null ){ // if there is an external resize function call it
-				lb.resize.call(lb.content, screen_width, screen_height );
-			} else {
+		//Gets window size 
+		screen_width = $(window).width();
+		screen_height = $(window).height();
+		
+		if( lb.resize!=null ){ // if there is an external resize function call it
+			lb.resize.call(lb.content, screen_width, screen_height );
+		} else {
 
-				if( !lb.source ){ // if there is no source than content is image and will be resized by internal function
+			if( !lb.source ){ // if there is no source than content is image and will be resized by internal function
 
-					imgResize.call(lb.content, screen_width, screen_height );
+				imgResize.call(lb.content, screen_width, screen_height );
 
-				}
 			}
+		}
 
-			//Gets content size
-			lightbox_content_width = lb.container.width();
-			lightbox_content_height = lb.container.height();
+		//Gets content size
+		lightbox_content_width = lb.container.width();
+		lightbox_content_height = lb.container.height();
 
-			//Left and top of public
-			lightbox_content_top = (screen_height - lightbox_content_height)/2;
-			lightbox_content_left = (screen_width - lightbox_content_width)/2;
-			lightbox_arrows_top = (lightbox_content_height - 46) / 2
+		//Left and top of public
+		lightbox_content_top = (screen_height - lightbox_content_height)/2;
+		lightbox_content_left = (screen_width - lightbox_content_width)/2;
+		lightbox_arrows_top = (lightbox_content_height - 46) / 2
 
-			//Apply all css during resize
-			lb.container.css({"top":lightbox_content_top, "left":lightbox_content_left});
-			lb.overlay.css("height", window_height);
-			
-			jQuery("."+lb.left_arrow).css("top", lightbox_arrows_top);
-			jQuery("."+lb.right_arrow).css("top", lightbox_arrows_top);
-	}
+		//Apply all css during resize
+		lb.container.css({"top":lightbox_content_top, "left":lightbox_content_left});
+		lb.overlay.css("height", window_height);
+		
+		$("."+lb.left_arrow).css("top", lightbox_arrows_top);
+		$("."+lb.right_arrow).css("top", lightbox_arrows_top);
+	};
 
 	//closes the lighbox
 	var close = function() 
@@ -357,7 +357,7 @@
 		var lb = this.vars;
 		lb.container.fadeOut('slow').empty().detach();
 		lb.overlay.fadeOut('slow').empty().detach();
-		jQuery(window).unbind('.lightbox');
-	}	
+		$(window).unbind('.lightbox');
+	};	
 
-}(jQuery, window));
+}($, window));
