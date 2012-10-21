@@ -43,7 +43,7 @@ jQuery(document).ready( function(){
 					pf_js.slider('slider-basico', { "auto_slide" : true, "auto_time" : 5000, "paginate":true });
 
 					var myLightbox = jQuery('body');
-					myLightbox.lightbox( 'init')
+					myLightbox.lightbox( 'init');
 
 					var elementos = jQuery( '#slider-basico li' ).click( function() {
 						var lCurrent= parseInt( jQuery(this).attr('data-index') );
