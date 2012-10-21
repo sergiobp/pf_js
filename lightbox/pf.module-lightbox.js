@@ -10,6 +10,8 @@ pf_js.util = pf_js.util || {};
         resize: null,
         lclass: "lightbox-img",
         imgAttr: "data-content",
+        controls: "controls",
+        contentsContainer: "lightbox-content",
 		leftArrow : "lightbox-left-arrow",
 		rightArrow : "lightbox-right-arrow",
 		disabledArrow : "disabled-arrow",
@@ -33,10 +35,12 @@ pf_js.util = pf_js.util || {};
 
 	    //global elements
 	   	var body = $('body'),
-	   	win = window,
+	   	win = $(window),
 		doc = $(document),
 	   	overlay,
 	   	container,
+	   	controls,
+	   	lightBoxContentsContainer,
 	   	leftArrow,
 	   	rightArrow,
 	   	closeButton;
@@ -50,8 +54,15 @@ pf_js.util = pf_js.util || {};
 
 				if(elements.length == 0){ 
 					throw "no elements has " + settings.lclass + " class and there's no source method"
+				} else {
+					total = elements.length;
 				}
 			}
+
+			elements
+				.bind('click', function() {
+					openLightBox($(this));
+				});
 		};
 
 		//build the entire html structure
@@ -62,23 +73,40 @@ pf_js.util = pf_js.util || {};
 			body.append('<div id="lightbox-container" style="display:none;"></div>');
 			container = $("#lightbox-container");
 			
-			container.append('<div class="' + settings.leftArrow + '"></div>');
-			leftArrow = $("." + settings.left_arrow);
+			container.append('<div class="controls"></div>');
+			controls = $("." + settings.controls);
+
+			container.append('<div class="lightbox-content"></div>');
+			lightBoxContentsContainer = $("." + settings.contentsContainer);
+
+			controls.append('<div class="' + settings.leftArrow + '"></div>');
+			leftArrow = $("." + settings.leftArrow);
 					
-			container.append('<div class="' + settings.rightArrow + '"></div>');
+			controls.append('<div class="' + settings.rightArrow + '"></div>');
 			rightArrow = $("." + settings.rightArrow);
 		
-			container.append('<div class="' + settings.closeButton + '"></div>');
+			controls.append('<div class="' + settings.closeButton + '"></div>');
 			closeButton = $("." + settings.closeButton);
+		};
 
-			startMethodsBind();
+		var showOverlay = function() {
+			overlay
+				.fadeIn(settings.fadeInTime);
+		};
+
+		var openLightBox = function(image) {
+			setupLightBoxStructure();
+			bindMethods();
+
+			//update current
+			current = elements.index(image);
+
+			showOverlay();
+			navigation();
 		};
 
 		//config buttons actions
-		var startMethodsBind = function() {
-
-			overlay
-				.fadeIn(500, resolveContent);
+		var bindMethods = function() {
 
 			//Configuring lightbox navigation
 			rightArrow
@@ -86,8 +114,6 @@ pf_js.util = pf_js.util || {};
 			
 			leftArrow
 				.bind('click', navLeft);
-
-			navigation(this);
 
 			//Closing lightbox
 			overlay
@@ -102,15 +128,13 @@ pf_js.util = pf_js.util || {};
 			
 			closeButton.bind('click', closeLightBox);
 
-			win.bind('resize.lightbox', resize);
-
-			resize();
+			win.bind('resize.lightbox', resizeLightBox);
 		};
 
 		var resolveContent = function() {
 			var element, content, contentWidth, contentHeight;
 
-			if( settings.source ){
+			if(settings.source){
 
 				source(current);
 
@@ -131,11 +155,9 @@ pf_js.util = pf_js.util || {};
 			var content = c;
 		    
 		    //reset container content and insert the new one
-		    container.css('opacity', 0);
-		    container.html('');
-			container.append(content);
-
-			resize();
+		    container.css('display', 'none');
+		    lightBoxContentsContainer.html('');
+			lightBoxContentsContainer.append(content);
 
 			//Resizing lightbox
 			container.fadeIn(settings.fadeInTime);
@@ -156,26 +178,27 @@ pf_js.util = pf_js.util || {};
 	    {
 			if (current < total - 1) 
 			{
-				lb.current++;
+				current++;
 				navigation();
 			}
 	    };
 
 		var navigation = function() 
-		{
+		{	
 			resolveContent();
-			
-			leftArrow.removeClass(disabledArrow);
-			rightArrow.removeClass(disabledArrow);
+			resizeLightBox();
+
+			leftArrow.removeClass(settings.disabledArrow);
+			rightArrow.removeClass(settings.disabledArrow);
 
 			if (current >= total - 1) 
 			{
-				lb.light_right_arrow.addClass(disabledArrow);
+				rightArrow.addClass(settings.disabledArrow);
 			}
 
 			if ((current - 1) <= - 1) 
 			{
-				leftArrow.addClass(disabledArrow);
+				leftArrow.addClass(settings.disabledArrow);
 			}
 		};
 
@@ -183,7 +206,7 @@ pf_js.util = pf_js.util || {};
 		// function that resizes the image when the lightbox is in image class mode
 		var imgResize = function( w, h ){
 			//gets the image dimensions
-			var currentImg 		= container.children('img');
+			var currentImg 		= lightBoxContentsContainer.find('img');
 			var currentWidth 	= currentImg.width();
 			var currentHeight 	= currentImg.height();
 			
@@ -204,11 +227,11 @@ pf_js.util = pf_js.util || {};
 			}else {
 				//if foto wider than screen adjust by height
 				nextWidth  = w * (settings.percentageOfDisplayUsage / 100);
-				nextheight = currentHeight * (nextwidth / currentWidth);
+				nextHeight = currentHeight * (nextWidth / currentWidth);
 			}
 			
 			//sets calculated height and width
-			currentImg.height(nextheight);
+			currentImg.height(nextHeight);
 			currentImg.width(nextWidth);
 		};
 
@@ -232,11 +255,11 @@ pf_js.util = pf_js.util || {};
 			screenWidth = win.width();
 			screenHeight = win.height();
 			
-			if(resize != null){ // if there is an external resize function call it
-				resize.(content, screenWidth, screenHeight);
+			if(settings.resize != null) { // if there is an external resize function call it
+				settings.resize(content, screenWidth, screenHeight);
 			} else {
-				if(settings.source){ // if there is no source than content is image and will be resized by internal function
-					imgResize.(content, screenWidth, screenHeight);
+				if(!settings.source){ // if there is no source than content is image and will be resized by internal function
+					imgResize(screenWidth, screenHeight);
 				}
 			}
 

@@ -1,57 +1,63 @@
 jQuery(document).ready( function(){
 
-					var lResize=function( w, h ){
-						//this function runs on the scope of the lightbox content container
+					// var lResize=function( w, h ){
+					// 	//this function runs on the scope of the lightbox content container
 						
-						//gets the image dimensions
-						var currentimg=jQuery(this).children('img');
-						var currentwidth=currentimg.width();
-						var currentheight=currentimg.height();
+					// 	//gets the image dimensions
+					// 	var currentimg=jQuery(this).children('img');
+					// 	var currentwidth=currentimg.width();
+					// 	var currentheight=currentimg.height();
 						
-						//calculates screen aspect ratio
-						var sar=h/w;
-						//calculates image aspect ratio
-						var far=currentheight/currentwidth;
+					// 	//calculates screen aspect ratio
+					// 	var sar=h/w;
+					// 	//calculates image aspect ratio
+					// 	var far=currentheight/currentwidth;
 						
-						//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
-						if( sar < far ){ 
-							// if screen wider than image adjust by height 
-							var nextheight=h*0.8;
-							var nextwidth=currentwidth*(nextheight/currentheight);
-						}else {
-							//if foto wider than screen adjust by height
-							var nextwidth=w*0.8;
-							var nextheight=currentheight*(nextwidth/currentwidth);
-						}
+					// 	//compares screen aspect ratio with image aspect ratio to decide if its better to adjusta by heigth or by width
+					// 	if( sar < far ){ 
+					// 		// if screen wider than image adjust by height 
+					// 		var nextheight=h*0.8;
+					// 		var nextwidth=currentwidth*(nextheight/currentheight);
+					// 	}else {
+					// 		//if foto wider than screen adjust by height
+					// 		var nextwidth=w*0.8;
+					// 		var nextheight=currentheight*(nextwidth/currentwidth);
+					// 	}
 						
-						//sets calculated height and width
-						currentimg.height(nextheight);
-						currentimg.width(nextwidth);
+					// 	//sets calculated height and width
+					// 	currentimg.height(nextheight);
+					// 	currentimg.width(nextwidth);
 					
-					}
+					// }
 
-					var lSource = function( index ){
+					// var lSource = function( index ){
 
-						var imgUrl=jQuery('#slider-basico li:eq('+index.toString()+')').attr('data-content');
+					// 	var imgUrl=jQuery('#slider-basico li:eq('+index.toString()+')').attr('data-content');
 
-						imgUrl='<img src="' + imgUrl + '"/>'
+					// 	imgUrl='<img src="' + imgUrl + '"/>'
 
-						myLightbox.lightbox('putContent',{c:imgUrl})
+					// 	myLightbox.lightbox('putContent',{c:imgUrl})
 
-					};
+					// };
 
 					pf_js.slider('slider-basico', { "auto_slide" : true, "auto_time" : 5000, "paginate":true });
 
-					var myLightbox = jQuery('body');
-					myLightbox.lightbox( 'init');
+					// var myLightbox = jQuery('body');
+					// myLightbox.lightbox( 'init')
 
-					var elementos = jQuery( '#slider-basico li' ).click( function() {
-						var lCurrent= parseInt( jQuery(this).attr('data-index') );
-						myLightbox.lightbox('open',{ _current:lCurrent, _total: elementos.length })
-					})
+					// var elementos = jQuery( '#slider-basico li' ).click( function() {
+					// 	var lCurrent= parseInt( jQuery(this).attr('data-index') );
+					// 	myLightbox.lightbox('open',{ _current:lCurrent, _total: elementos.length })
+					// })
 
-					elementos.each( function(index){
-						jQuery(this).attr('data-index',index);
-					} )
+					// elementos.each( function(index){
+					// 	jQuery(this).attr('data-index',index);
+					// } )
 
-				});
+});
+
+
+$(function() {
+	var lightBox = new pf_js.util.LightBox();
+	lightBox.init();
+});
