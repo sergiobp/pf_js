@@ -250,7 +250,6 @@ pf_js.util = pf_js.util || {};
 
                 closeButton.bind('click', closeLightBox);
 
-                win.bind('resize.lightbox', resizeLightBox);
             },
 
             openLightBox = function (image) {
@@ -277,10 +276,8 @@ pf_js.util = pf_js.util || {};
                     }
                 }
 
-                elements
-                    .bind('click', function () {
-                        openLightBox($(this));
-                    });
+               	win.bind('resize.lightbox', resizeLightBox);
+
             };
 
         return {
