@@ -26,39 +26,43 @@ window.pf_js = window.pf_js || {};
 	    	leftArrow, 
 	    	rightArrow,
 	    	paginator,
-	    	pageCtrls;
+	    	pageCtrls,
 
 	    //slider dimensions
-	    var slideWidth,
-	    	totalWidth;
+	    	slideWidth,
+	    	totalWidth,
 
 	    //status of the slider
-	    var currentSlide=0, // the item that is currrent on display 
+	        currentSlide=0, // the item that is currrent on display 
 	    	totalWidth, // sum of width of all itens, including margins
-	    	transBlock; //flag to block interaction during transitions
+	    	transBlock, //flag to block interaction during transitions
+	    	savedPosition, //gets the position whre the user left the slider last time it was used
 
 	    // paginator elements
-	    var paginate, // true if slider has a paginator
+	        paginate, // true if slider has a paginator
 	    	paginator, // the paginator html element
 	    	pageCtrls, // buttons to paginate. one por each item.
-	    	pageCtrlActiveClass = 'active'; // class that mark a pageCtrl as active. its a constant
+	    	pageCtrlActiveClass = 'active', // class that mark a pageCtrl as active. its a constant
 
 	    //classes
-	    var arrowOffClass,
+	        arrowOffClass,
 	    	leftArrowClass,
-			rightArrowClass;
+			rightArrowClass,
 
 	    //automatic sliding
-	    var autoTimer, autoSlide, autoTime;
+	        autoTimer, autoSlide, autoTime,
 
 	    // settings default
-	    var defaults = {
-			"arrow_left_class" : ".arrow.left",
-			"arrow_right_class" : ".arrow.right",
-			"arrow_off_class":"off",
-			"paginate" : false,
-			"auto_slide":false,
-			"auto_time":1000,
+	    	defaults = {
+		    	"maskSelector": ".pfMask",
+				"arrow_left_class" : ".arrow.left",
+				"arrow_right_class" : ".arrow.right",
+				"arrow_off_class":"off",
+				"paginate" : false,
+				"auto_slide":false,
+				"auto_time":1000,
+				"pageSlide":false,
+				"mantainPosition":false
 	    };
 
 
@@ -107,9 +111,13 @@ window.pf_js = window.pf_js || {};
 			}
 			
 			
-			if( ( frame.position().left + totalWidth ) <= ( parent.width() ) ) { //slider is all to the right 
+			if( ( frame.position().left + totalWidth ) <= ( mask.width() ) ) { //slider is all to the right 
 				rightArrow.addClass(arrowOffClass);
 			}
+
+			sessionStorage.setItem( window.location.pathname, frame.position().left.toString() );
+
+
 		};
 
 		// called by the auto slide timer interval
@@ -160,6 +168,7 @@ window.pf_js = window.pf_js || {};
 
 		//gets and stores html elements
 		parent 			= $( '#' + root );
+		mask 			= $( settings.maskSelector );
 		frame 			= parent.find('ul');
 		itens 			= frame.find('li');
 		leftArrow 		= parent.find(leftArrowClass);
@@ -170,8 +179,14 @@ window.pf_js = window.pf_js || {};
 		totalWidth	= slideWidth * itens.length;
 
 		//initialize slider state
-		currentSlide = 1; 		 //current slider = first slider
+		currentSlide = 0; 		 //current slider = first slider
 		frame.width(totalWidth); //sets the size of the slider object to hold all items
+		savedPosition = sessionStorage.getItem( window.location.pathname ); //get the last position of the slider
+		if( settings.mantainPosition ){
+			if( savedPosition != null ){ 
+				frame.css('left', savedPosition + 'px');
+			}
+		}
 
 		//builds the paginator
 		if ( paginate ) {
@@ -200,26 +215,53 @@ window.pf_js = window.pf_js || {};
 
 		// sets the click on the left arrow
 		leftArrow.click(function(){
-			if(currentSlide>1 && !transBlock ){
+			if( ( frame.position().left < 0  ) && !transBlock ){
 				clearInterval( autoTimer );
 				transBlock=true
-				currentSlide--;
-				leftEnd = slideWidth * (currentSlide - 1);
-				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+				
+				if ( settings.pageSlide ){
+
+					leftEnd = ( Math.floor( ( frame.position().left + mask.width() ) / slideWidth ) )* slideWidth;
+
+					leftEnd =  - Math.min( leftEnd , 0 );
+
+				} else {
+
+					currentSlide--;
+					leftEnd = slideWidth * ( currentSlide );
+					
 				}
+
+				
+				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
+			}
 		});
 
 		//sets the click on the right arrow
 		rightArrow.click(function(){
-			if( ( ( frame.position().left + totalWidth ) >  parent.width() ) && !transBlock ){
+
+			if( ( ( frame.position().left + totalWidth ) >  mask.width() ) && !transBlock ){
 				clearInterval( autoTimer );
 				transBlock=true;
-				leftEnd = slideWidth * currentSlide;
+
+				if ( settings.pageSlide ){
+
+					leftEnd = ( Math.floor( ( frame.position().left - mask.width() ) / slideWidth ) + 1 )* slideWidth;
+
+					leftEnd =   - Math.max( leftEnd ,  -frame.width() + mask.width()  );
+
+				} else {
+
+					currentSlide++;
+					leftEnd = Math.min ( slideWidth * ( currentSlide ), frame.width() - mask.width() ) ;
+					
+				}
+
 				frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ updateNavigation(); transBlock=false; }});
-				currentSlide++;
+
 			}
 
-		}); 	  
+		});   
 
 	}
 

@@ -8,11 +8,10 @@ pf_js.util = pf_js.util || {};
 
     // Create the defaults once
     var defaults = {
-        source: null,
-        resize: null,
-        lclass: "lightbox-img",
-        imgAttr: "data-content",
-        controls: "controls",
+        source: null, // external function to call for content. if present it is called to get itens of content to display
+        resize: null, // external function to call on resize.
+        imageClass: null, //class of elements that have data about the images to display.
+        imgResize: false, // true if internal image resizing function should be called.
         contentsContainer: "lightbox-content",
         leftArrow : "lightbox-left-arrow",
         rightArrow : "lightbox-right-arrow",
@@ -38,7 +37,6 @@ pf_js.util = pf_js.util || {};
             doc = $(document),
             overlay,
             container,
-            controls,
             lightBoxContentsContainer,
             leftArrow,
             rightArrow,
@@ -52,17 +50,14 @@ pf_js.util = pf_js.util || {};
                 body.append('<div id="lightbox-container" style="display:none;"></div>');
                 container = $("#lightbox-container");
 
-                container.append('<div class="controls"></div>');
-                controls = $("." + settings.controls);
-
-                container.append('<div class="lightbox-content"></div>');
+                container.append('<div class="' +  settings.contentsContainer + '"></div>');
                 lightBoxContentsContainer = $("." + settings.contentsContainer);
 
-                controls.append('<div class="' + settings.leftArrow + '"></div>');
+                container.append('<div class="' + settings.leftArrow + '"></div>');
                 leftArrow = $("." + settings.leftArrow);
-                controls.append('<div class="' + settings.rightArrow + '"></div>');
+                container.append('<div class="' + settings.rightArrow + '"></div>');
                 rightArrow = $("." + settings.rightArrow);
-                controls.append('<div class="' + settings.closeButton + '"></div>');
+                container.append('<div class="' + settings.closeButton + '"></div>');
                 closeButton = $("." + settings.closeButton);
             },
 
@@ -76,6 +71,7 @@ pf_js.util = pf_js.util || {};
 
                 //Resizing lightbox
                 container.fadeIn(settings.fadeInTime);
+
             },
 
             resolveContent = function () {
@@ -86,7 +82,7 @@ pf_js.util = pf_js.util || {};
 
                 if (settings.source) {
 
-                    window.source(current);
+                    content = settings.source(current);
 
                 } else {
 
@@ -97,8 +93,10 @@ pf_js.util = pf_js.util || {};
                     contentHeight   = (contentHeight) ? 'height = "' + contentHeight + 'px"' : '';
                     content         = '<img src="' + element.data('content') + '" ' + contentWidth + ' ' + contentHeight + '/>';
 
-                    insertContent(content);
+                    
                 }
+
+                insertContent(content);
             },
 
             // function that resizes the image when the lightbox is in image class mode
@@ -153,13 +151,13 @@ pf_js.util = pf_js.util || {};
                 screenWidth = win.width();
                 screenHeight = win.height();
 
-                if (settings.resize !== null) { // if there is an external resize function call it
+                if ( settings.resize !== null) { // if there is an external resize function call it
                     settings.resize(screenWidth, screenHeight);
-                } else {
-                    if (!settings.source) { // if there is no source than content is image and will be resized by internal function
-                        imgResize(screenWidth, screenHeight);
-                    }
                 }
+                if ( settings.imageResize ) { // if there is no source than content is image and will be resized by internal function
+                    imgResize(screenWidth, screenHeight);
+                }
+                
 
                 //Gets content size
                 contentWidth    = container.width();
@@ -176,6 +174,7 @@ pf_js.util = pf_js.util || {};
 
                 leftArrow.css("top", arrowsTop);
                 rightArrow.css("top", arrowsTop);
+
             },
 
             navigation = function () {
@@ -252,22 +251,25 @@ pf_js.util = pf_js.util || {};
 
             },
 
-            openLightBox = function (image) {
+            openLightBox = function ( i, t ) {
                 setupLightBoxStructure();
                 bindMethods();
 
                 //update current
-                current = elements.index(image);
+                current = i;
+                total = t;
 
                 showOverlay();
                 navigation();
+
             },
 
             //setup the initial state and start the application
             initialConfig = function () {
+
                 if (!settings.source) {
 
-                    elements = $('.' + settings.lclass);
+                    elements = $('.' + settings.imageClass);
 
                     if (elements.length === 0) {
                         throw "no elements has " + settings.lclass + " class and there's no source method";
@@ -281,15 +283,8 @@ pf_js.util = pf_js.util || {};
             };
 
         return {
-            init: function () {
-                initialConfig();
-            },
-            open: function () {
-                setupLightBoxStructure();
-            },
-            initializeContent: function (content) {
-                insertContent(content);
-            }
+            init: initialConfig,
+            open: openLightBox
         };
 
     };

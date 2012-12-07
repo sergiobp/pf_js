@@ -58,6 +58,29 @@ jQuery(document).ready( function(){
 
 
 $(function() {
-	var lightBox = new pf_js.util.LightBox();
+	
+	var elements = $('#slider-basico li'),
+
+	lSource = function( index ){
+
+		element 		= $(elements.get(index));
+        contentWidth    = element.data('width');
+        contentWidth    = (contentWidth) ? 'width = "' + contentWidth + 'px"' : '';
+        contentHeight   = element.data('height');
+        contentHeight   = (contentHeight) ? 'height = "' + contentHeight + 'px"' : '';
+        content         = '<img src="' + element.data('content') + '" ' + contentWidth + ' ' + contentHeight + '/>';
+
+        return content;
+
+	},
+
+	lightBox = new pf_js.util.LightBox( { source: lSource, resize: null, /*imageClass: 'lightbox-img',*/ imageResize: true } );
+
 	lightBox.init();
+
+	elements.click( function(){
+
+		lightBox.open( elements.index( $(this) ), elements.length );
+
+	});
 });
