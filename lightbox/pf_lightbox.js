@@ -251,9 +251,11 @@ pf_js.util = pf_js.util || {};
 
             },
 
-            openLightBox = function ( i, t ) {
+            openLightBox = function ( i, t, e ) {
                 setupLightBoxStructure();
                 bindMethods();
+
+                elements = e || elements
 
                 //update current
                 current = i;

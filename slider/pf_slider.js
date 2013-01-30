@@ -63,11 +63,11 @@ window.pf_js = window.pf_js || {};
 				"auto_time":1000,
 				"pageSlide":false,
 				"mantainPosition":false
-	    };
+	    },
 
 
 	    // add pages controls to the paginator
-		function addPage( index ){
+		addPage = function( index ){
 			index++;
 			paginator.append( '<div class="page-ctrl" data-page="' + index.toString() + '" ></div>' )
 		};

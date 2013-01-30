@@ -25,7 +25,7 @@ Slider is a jQuery Plugin that lets users browse elements inside a div by slidin
 </div>
 
 >>> como ativar o slider
-jQuery("#myslider").slider("myslider");
+slider = slider("#myslider");
 
 Lightbox.js
 ===========
