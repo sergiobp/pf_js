@@ -154,7 +154,7 @@ pf_js.util = pf_js.util || {};
                 if ( settings.resize !== null) { // if there is an external resize function call it
                     settings.resize(screenWidth, screenHeight);
                 }
-                if ( settings.imageResize ) { // if there is no source than content is image and will be resized by internal function
+                if ( settings.imgResize ) { // if there is no source than content is image and will be resized by internal function
                     imgResize(screenWidth, screenHeight);
                 }
                 
@@ -248,6 +248,7 @@ pf_js.util = pf_js.util || {};
                 });
 
                 closeButton.bind('click', closeLightBox);
+                win.bind('resize.lightbox', resizeLightBox);
 
             },
 
@@ -279,8 +280,6 @@ pf_js.util = pf_js.util || {};
                         total = elements.length;
                     }
                 }
-
-               	win.bind('resize.lightbox', resizeLightBox);
 
             };
 

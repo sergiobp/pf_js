@@ -63,11 +63,11 @@ window.pf_js = window.pf_js || {};
 				"auto_time":1000,
 				"pageSlide":false,
 				"mantainPosition":false
-	    },
+	    };
 
 
 	    // add pages controls to the paginator
-		addPage = function( index ){
+		function addPage( index ){
 			index++;
 			paginator.append( '<div class="page-ctrl" data-page="' + index.toString() + '" ></div>' )
 		};
@@ -123,7 +123,9 @@ window.pf_js = window.pf_js || {};
 		// called by the auto slide timer interval
 		var autoSliding = function(){
 
-			var firstItemCopy, leftEnd;
+			var firstItemsCopy,
+				numCopy,
+				leftEnd;
 
 			if( !transBlock ){
 
@@ -139,13 +141,19 @@ window.pf_js = window.pf_js || {};
 				} else {
 					transBlock = true;
 					// to go back to first element slider duplicates the first element on the end
-					firstItemCopy = $( itens[0] ).clone();
-					frame.append( firstItemCopy );
-					frame.width( totalWidth + slideWidth );
-					leftEnd=totalWidth;
+
+					numCopy = Math.ceil( parent.width()/slideWidth );
+
+					for(var i=0; i<numCopy; i++ ){
+						frame.append( $( itens[i] ).clone() );
+					}
+					frame.width( totalWidth + slideWidth * numCopy );
+					leftEnd = totalWidth;
 					frame.animate({left:'-'+leftEnd}, { duration:1500, easing:"easeInOutCubic", complete:function(){ 
 						frame.css('left',0);
-						parent.find('li').last().remove();
+						for(var i=0; i<numCopy; i++ ){
+							parent.find('li').last().remove();
+						}
 						frame.width( totalWidth );
 						updateNavigation();
 						transBlock = false;
